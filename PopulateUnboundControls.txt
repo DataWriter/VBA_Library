@@ -1,0 +1,54 @@
+Public Function PopulateUnboundControls( _
+    FormName As String, _
+    DataRecordset As ADODB.Recordset)
+
+    On Error GoTo ErrorHandler
+
+    Dim frm As Form
+    Dim ctl As Control
+    Dim fld As ADODB.Field
+
+    Set frm = Forms(FormName)
+
+    If DataRecordset.BOF And DataRecordset.EOF Then Exit Function
+
+    For Each ctl In frm.Controls
+
+        Select Case ctl.ControlType
+            Case acTextBox, acComboBox
+
+                If Len(ctl.Tag) > 0 Then
+
+                    Set fld = Nothing
+
+                    On Error Resume Next
+                    Set fld = DataRecordset.Fields(ctl.Tag)
+                    On Error GoTo ErrorHandler
+
+                    If Not fld Is Nothing Then
+                        ctl.Value = fld.Value
+                    Else
+                        Debug.Print "Field not found: " & ctl.Tag & _
+                                    " (" & ctl.Name & ")"
+                    End If
+
+                End If
+
+        End Select
+
+    Next ctl
+
+ExitHere:
+    Set fld = Nothing
+    Set ctl = Nothing
+    Set frm = Nothing
+    Exit Function
+
+ErrorHandler:
+    GlobalErrorHandler _
+        "PopulateUnboundControls:GeneralFunctions", _
+        Err, False, False, False, vbNullString
+
+    GoTo ExitHere
+
+End Function
