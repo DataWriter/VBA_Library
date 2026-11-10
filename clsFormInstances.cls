@@ -40,6 +40,9 @@ Option Explicit
 '           ' One window per record: bring the existing one forward instead.
 '           If Not m_Instances.Activate("Customer:" & lngID) Then ...open as above...
 '
+'           ' Application level: import modFormInstances.bas and call FormInstances.Add
+'           ' from anywhere instead of declaring m_Instances. No owner form is needed.
+'
 ' Notes   : - Key is optional. Without it, the form's hWnd is used. Add returns the key.
 '           - Add makes the form visible, so set it up first.
 '           - Open the form as a local variable, as above. A module-level variable in the
