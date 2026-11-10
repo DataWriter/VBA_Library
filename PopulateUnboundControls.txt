@@ -1,14 +1,24 @@
+' Copies values from an ADO recordset into the unbound text boxes and combo boxes of a
+' form. Each control's Tag holds the name of the field to read.
+'
+' Takes the form object, not its name, so it works with form instances: Forms("Name")
+' reaches only the first instance when several share one name.
+'
+' Usage   : Set frm = New Form_Customer
+'           PopulateUnboundControls frm, rs      ' Populate before Add, while it is hidden
+'           FormInstances.Add frm, "Customer:" & lngID
+'
+' Requires: Reference to Microsoft ActiveX Data Objects.
 Public Function PopulateUnboundControls( _
-    FormName As String, _
+    ByVal frm As Access.Form, _
     DataRecordset As ADODB.Recordset)
+
+    ' ByVal matters: clearing frm in the cleanup below must not clear the caller's variable.
 
     On Error GoTo ErrorHandler
 
-    Dim frm As Form
     Dim ctl As Control
     Dim fld As ADODB.Field
-
-    Set frm = Forms(FormName)
 
     If DataRecordset.BOF And DataRecordset.EOF Then Exit Function
 
@@ -45,9 +55,7 @@ ExitHere:
     Exit Function
 
 ErrorHandler:
-    GlobalErrorHandler _
-        "PopulateUnboundControls:GeneralFunctions", _
-        Err, False, False, False, vbNullString
+    Debug.Print "PopulateUnboundControls error " & Err.Number & ": " & Err.Description
 
     GoTo ExitHere
 
