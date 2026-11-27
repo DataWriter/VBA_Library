@@ -96,7 +96,7 @@ Private m_FailedCount As Long
 
 Private Sub Class_Terminate()
 
-    Release
+    Dispose
 
 End Sub
 
@@ -116,7 +116,7 @@ Public Sub Retrieve(ByVal ConnectionString As String, ByVal SourceSql As String,
     Dim strSrc As String
     Dim strDesc As String
 
-    Release
+    Dispose
 
     On Error GoTo Fail
 
@@ -172,7 +172,7 @@ End Sub
 Public Sub Attach(ByVal Rst As ADODB.Recordset, ByVal KeyField As String, _
                   Optional ByVal LabelField As String = "")
 
-    Release
+    Dispose
 
     Set m_Rst = Rst
     m_ConnString = vbNullString
@@ -183,7 +183,7 @@ Public Sub Attach(ByVal Rst As ADODB.Recordset, ByVal KeyField As String, _
 End Sub
 
 ' Closes the recordset and forgets everything. Called by Class_Terminate.
-Public Sub Release()
+Public Sub Dispose()
 
     On Error Resume Next
     If Not m_Rst Is Nothing Then
