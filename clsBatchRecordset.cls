@@ -80,12 +80,15 @@ Option Explicit
 '             check that Commit reports it and saves the others.
 '
 ' History : 11/25/26 Created.
+'           11/27/26 Release renamed Dispose (Release is reserved). Attach now rejects
+'           a recordset it cannot work with.
 '---------------------------------------------------------------------------------------
 
 Private Const ERR_NOT_OPEN As Long = vbObjectError + 517
 Private Const ERR_NO_ROW As Long = vbObjectError + 518
 Private Const ERR_NO_FIELD As Long = vbObjectError + 519
 Private Const ERR_NO_CONNECTION As Long = vbObjectError + 520
+Private Const ERR_BAD_RECORDSET As Long = vbObjectError + 521
 
 Private m_Rst As ADODB.Recordset
 Private m_ConnString As String
@@ -168,9 +171,29 @@ Public Sub Reload()
 End Sub
 
 ' Uses a recordset that is already built. It must be client-side with a batch lock
-' (CursorLocation = adUseClient, LockType = adLockBatchOptimistic) and open.
+' (CursorLocation = adUseClient, LockType = adLockBatchOptimistic) and open. Anything
+' else raises an error and leaves the class as it was. (A forward-only server cursor
+' reports RecordCount = -1, so its rows would otherwise look like an empty set.)
 Public Sub Attach(ByVal Rst As ADODB.Recordset, ByVal KeyField As String, _
                   Optional ByVal LabelField As String = "")
+
+    Dim strProblem As String
+
+    ' ElseIf, because VBA evaluates both sides of Or: each test needs the one above.
+    If Rst Is Nothing Then
+        strProblem = "is Nothing"
+    ElseIf Rst.State <> adStateOpen Then
+        strProblem = "is not open"
+    ElseIf Rst.CursorLocation <> adUseClient Then
+        strProblem = "is not client-side (CursorLocation = adUseClient)"
+    ElseIf Rst.LockType <> adLockBatchOptimistic Then
+        strProblem = "does not have a batch lock (LockType = adLockBatchOptimistic)"
+    End If
+
+    If Len(strProblem) > 0 Then
+        Err.Raise ERR_BAD_RECORDSET, "clsBatchRecordset.Attach", _
+                  "The recordset " & strProblem & "."
+    End If
 
     Dispose
 
