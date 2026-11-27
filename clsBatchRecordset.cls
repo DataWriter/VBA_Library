@@ -19,7 +19,8 @@ Option Explicit
 '           Commit is called. Nothing reaches the server before then.
 '
 ' Install : Import clsBatchRecordset.cls. Needs a reference to Microsoft ActiveX Data
-'           Objects (2.8 or later). The tests are in modBatchRecordsetTests.bas
+'           Objects 6.1 Library (an older reference can give "Type Mismatch" on 64-bit
+'           Office). The tests are in modBatchRecordsetTests.bas
 '           (optional, development database only).
 '
 ' Usage   : Private m_Lines As clsBatchRecordset
